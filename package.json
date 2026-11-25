@@ -2,7 +2,12 @@
   "name": "smart-submission-assistant",
   "private": true,
   "type": "module",
-  "scripts": {
-    "test": "node --test \"tests/**/*.test.js\""
+    "scripts": {
+    "test": "node --test \"tests/**/*.test.js\"",
+    "build": "vite build",
+    "build:watch": "vite build --watch"
+  },
+  "devDependencies": {
+    "vite": "^8.3.8"
   }
 }
