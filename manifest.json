@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Smart Submission Assistant",
+  "version": "0.1.0",
+  "description": "Detects file upload requirements on web pages.",
+  "action": {
+    "default_title": "Smart Submission Assistant"
+  },
+  "side_panel": {
+    "default_path": "src/sidepanel.html"
+  },
+  "background": {
+    "service_worker": "src/service-worker.js",
+    "type": "module"
+  },
+  "permissions": ["activeTab", "scripting", "sidePanel"],
+  "host_permissions": ["http://localhost/*"]
+}

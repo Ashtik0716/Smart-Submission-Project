@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Smart Submission Assistant</title>
+  <!-- Relative to this file, so it resolves to src/sidepanel.css -->
+  <link rel="stylesheet" href="sidepanel.css" />
+</head>
+
+<body>
+  <!-- Logo and product name -->
+  <header class="header">
+    <div class="logo">S</div>
+    <div>
+      <h1 class="title">Smart Submission Assistant</h1>
+      <p class="subtitle">Understand upload rules instantly</p>
+    </div>
+  </header>
+
+  <!-- Current page info (filled in by sidepanel.js later) -->
+  <section class="card">
+    <p class="label">Current page</p>
+    <p id="page-title" class="page-title">Not analyzed yet</p>
+  </section>
+
+  <button id="analyze-btn" class="btn-primary">Analyze website</button>
+
+  <section class="card">
+    <p class="label">Your file</p>
+    <input id="file-input" type="file" />
+    <p id="file-info" class="muted">No file selected.</p>
+  </section>
+
+  <!-- Detection results will be rendered here -->
+  <section id="results" class="results">
+    <p class="muted">Click "Analyze website" to scan this page for file upload fields.</p>
+  </section>
+
+  <!-- External script only: Manifest V3 blocks inline scripts -->
+  <script type="module" src="sidepanel.js"></script>
+</body>
+
+</html>
