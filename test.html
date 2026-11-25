@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Assignment Portal (Test Page)</title>
+</head>
+
+<body>
+  <h1>Assignment 3 Submission</h1>
+
+  <!-- Case 1: label + accept attribute + instructions in a sibling element -->
+  <div>
+    <label for="report">Upload your report</label>
+    <input type="file" id="report" name="report" accept=".pdf" required />
+    <p>Submit as PDF only. Maximum size 5 MB. Not more than 10 pages.
+      Name the file RegistrationNumber_FullName.pdf</p>
+  </div>
+
+  <hr />
+
+  <!-- Case 2: no accept attribute, multiple files, optional -->
+  <div>
+    <label for="extras">Supporting documents (optional)</label>
+    <input type="file" id="extras" name="extras" multiple />
+    <p>You may attach up to 3 images or documents.</p>
+  </div>
+
+  <hr />
+
+  <!-- Case 3: no label element at all, only a nearby text node -->
+  <div>
+    Cover photo
+    <input type="file" name="photo" accept="image/png, image/jpeg, .webp" />
+  </div>
+
+  <hr />
+
+  <div class="field">
+    <div class="field-header">
+      <strong>Resume</strong>
+      <small>PDF or DOCX, up to 2 MB.</small>
+    </div>
+    <div class="field-body">
+      <input type="file" name="resume" accept=".pdf,.docx" />
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- Case 5: real input hidden, styled <label> acts as the button -->
+  <div class="field">
+    <label for="cv" class="btn">Upload CV</label>
+    <input type="file" id="cv" name="cv" accept=".pdf" hidden />
+    <p>PDF only, max 3 MB.</p>
+  </div>
+
+  <hr />
+
+  <!-- Case 6: drop zone with a hidden input and no label at all -->
+  <div class="dropzone">
+    <p>Drag and drop your certificate here, or click to browse.</p>
+    <small>PNG or JPG, max 1 MB.</small>
+    <input type="file" name="cert" accept="image/png,image/jpeg" hidden />
+  </div>
+
+</html>
