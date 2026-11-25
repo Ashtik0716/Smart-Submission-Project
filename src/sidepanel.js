@@ -164,6 +164,7 @@ analyzeBtn.addEventListener("click", async () => {
 
 function renderResults(fields) {
     if (!fields || fields.length === 0) {
+        lastFields = fields;
         resultsEl.innerHTML = '<p class="muted">No file upload fields found on this page.</p>';
         return;
     }
@@ -203,7 +204,7 @@ function renderResults(fields) {
         <p class="muted">Accepts: ${f.accept.length ? escapeHtml(f.accept.join(", ")) : "any file type"}</p>
         <p class="muted">Multiple files: ${f.multiple ? "yes" : "no"}</p>
         ${rules.map((r) => `<p class="rule">${escapeHtml(r)}</p>`).join("")}
-        
+        ${checksHtml}
         ${f.instructions.map((t) => `<p class="muted">“${escapeHtml(t)}”</p>`).join("")}
       </section>`;
         })
