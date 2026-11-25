@@ -68,3 +68,17 @@ test("spelled-out units", () => {
   assert.equal(parseRequirements(["Keep it under 500 kilobytes"]).maxSizeBytes, 500 * 1024);
   assert.equal(parseRequirements(["Up to 1 gigabyte"]).maxSizeBytes, 1024 ** 3);
 });
+
+test("max dimensions", () => {
+  assert.deepEqual(parseRequirements(["Maximum 1200x800 pixels."]).maxDimensions, { width: 1200, height: 800 });
+});
+
+test("min dimensions", () => {
+  assert.deepEqual(parseRequirements(["At least 300 × 300 px"]).minDimensions, { width: 300, height: 300 });
+});
+
+test("dimensions without min/max keyword are ignored", () => {
+  const r = parseRequirements(["Recommended 300x300"]);
+  assert.equal(r.maxDimensions, null);
+  assert.equal(r.minDimensions, null);
+});

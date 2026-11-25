@@ -74,6 +74,18 @@ export function parseNaming(text) {
   };
 }
 
+// "Maximum 1200x800 pixels", "at least 300 x 300 px" -> { width, height, kind }
+// Only returns a rule when the text says min or max explicitly.
+export function parseDimensions(text) {
+  const m = text.match(/(\d{2,5})\s*[x×]\s*(\d{2,5})\s*(?:px|pixels?)?/i);
+  if (!m) return null;
+  const before = text.slice(Math.max(0, m.index - 25), m.index);
+  const isMin = /(at least|minimum|min\.?|no (smaller|less) than|not (smaller|less) than)\s*:?\s*$/i.test(before);
+  const isMax = /(maximum|max\.?|up to|at most|no (larger|bigger|more) than|not (larger|bigger|more) than|not exceed(ing)?)\s*:?\s*$/i.test(before);
+  if (!isMin && !isMax) return null;
+  return { width: +m[1], height: +m[2], kind: isMin ? "min" : "max", evidence: m[0] };
+}
+
 // Combine all instruction strings for one upload field into one rules object.
 // null means "no rule found", which is different from "no limit".
 export function parseRequirements(texts) {
@@ -82,17 +94,21 @@ export function parseRequirements(texts) {
   const pages = parsePages(text);
   const fmt = parseFormats(text);
   const naming = parseNaming(text);
+  const dim = parseDimensions(text)
 
   return {
     maxSizeBytes: size ? size.bytes : null,
     maxPages: pages && pages.kind === "max" ? pages.value : null,
     minPages: pages && pages.kind === "min" ? pages.value : null,
+    maxDimensions: dim && dim.kind === "max" ? { width: dim.width, height: dim.height } : null,
+    minDimensions: dim && dim.kind === "min" ? { width: dim.width, height: dim.height } : null,
     textFormats: fmt.formats,      // empty array = text didn't say
     naming: naming,                // null = no naming rule found
     evidence: {
       size: size ? size.evidence : null,
       pages: pages ? pages.evidence : null,
       formats: fmt.evidence,
+      dimensions: dim ? dim.evidence : null,
     },
   };
 }

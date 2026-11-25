@@ -1,6 +1,7 @@
 import { parseRequirements } from "./parser.js";
 import { reconcileFormats } from "./formats.js";
 import { getFileInfo, checkFile, formatBytes, countPdfPages } from "./analyzer.js";
+import { readImageSize } from './analyzer.js'
 
 
 // ---------- Runs INSIDE the webpage ----------
@@ -128,7 +129,20 @@ fileInput.addEventListener("change", async () => {
         else currentInfo.pageError = result.error;
     }
 
-    const pagesText = currentInfo.pages != null ? ` · ${currentInfo.pages} pages` : "";
+    if (["png", "jpg", "webp"].includes(currentInfo.extension)) {
+        fileInfoEl.textContent = "Reading image…";
+        const result = await readImageSize(file);
+        if (result.width != null) {
+            currentInfo.width = result.width;
+            currentInfo.height = result.height;
+        } else {
+            currentInfo.imageError = result.error;
+        }
+    }
+
+    const sizeText = currentInfo.width != null ? ` · ${currentInfo.width}×${currentInfo.height}px` : "";
+    fileInfoEl.textContent =
+        `${currentInfo.name} · ${formatBytes(currentInfo.sizeBytes)}${pagesText}${sizeText} · ${currentInfo.mime}`;
     fileInfoEl.textContent =
         `${currentInfo.name} · ${formatBytes(currentInfo.sizeBytes)}${pagesText} · ${currentInfo.mime}`;
     if (lastFields.length) renderResults(lastFields);
@@ -181,6 +195,10 @@ function renderResults(fields) {
                 rules.push(`Max pages: ${req.maxPages} (from “${req.evidence.pages}”)`);
             if (req.minPages !== null)
                 rules.push(`Min pages: ${req.minPages} (from “${req.evidence.pages}”)`);
+                        if (req.maxDimensions)
+                rules.push(`Max dimensions: ${req.maxDimensions.width}×${req.maxDimensions.height}px (from “${req.evidence.dimensions}”)`);
+            if (req.minDimensions)
+                rules.push(`Min dimensions: ${req.minDimensions.width}×${req.minDimensions.height}px (from “${req.evidence.dimensions}”)`);
 
             const fmt = reconcileFormats(f.accept, req.textFormats);
             if (fmt.allowed)

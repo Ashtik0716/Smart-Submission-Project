@@ -1,20 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <title>Assignment Portal (Test Page)</title>
 </head>
-
 <body>
   <h1>Assignment 3 Submission</h1>
 
-  <!-- Case 1: label + accept attribute + instructions in a sibling element -->
+  <!-- Case 1: label + accept + instructions in a sibling element -->
   <div>
     <label for="report">Upload your report</label>
     <input type="file" id="report" name="report" accept=".pdf" required />
     <p>Submit as PDF only. Maximum size 5 MB. Not more than 10 pages.
-      Name the file RegistrationNumber_FullName.pdf</p>
+       Name the file RegistrationNumber_FullName.pdf</p>
   </div>
 
   <hr />
@@ -28,7 +26,7 @@
 
   <hr />
 
-  <!-- Case 3: no label element at all, only a nearby text node -->
+  <!-- Case 3: no label element, only a nearby text node -->
   <div>
     Cover photo
     <input type="file" name="photo" accept="image/png, image/jpeg, .webp" />
@@ -36,6 +34,7 @@
 
   <hr />
 
+  <!-- Case 4: instructions BEFORE the input, inside a styled wrapper -->
   <div class="field">
     <div class="field-header">
       <strong>Resume</strong>
@@ -57,11 +56,11 @@
 
   <hr />
 
-  <!-- Case 6: drop zone with a hidden input and no label at all -->
+  <!-- Case 6: drop zone, hidden input, no label, with a dimension rule -->
   <div class="dropzone">
     <p>Drag and drop your certificate here, or click to browse.</p>
-    <small>PNG or JPG, max 1 MB.</small>
+    <small>PNG or JPG, max 1 MB. Maximum 1200x800 pixels.</small>
     <input type="file" name="cert" accept="image/png,image/jpeg" hidden />
   </div>
-
+</body>
 </html>

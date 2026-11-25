@@ -14,6 +14,18 @@ export async function countPdfPages(file) {
   }
 }
 
+// Read image width/height by decoding locally. Returns { width, height } or { error }.
+export async function readImageSize(file) {
+  try {
+    const bitmap = await createImageBitmap(file);
+    const size = { width: bitmap.width, height: bitmap.height };
+    bitmap.close(); // free the decoded image's memory
+    return size;
+  } catch (err) {
+    return { error: err.message };
+  }
+}
+
 // Bytes -> readable text. (Moved here from sidepanel.js: one shared copy.)
 export function formatBytes(bytes) {
   if (bytes >= 1024 ** 2) return `${+(bytes / 1024 ** 2).toFixed(2)} MB`;
@@ -63,7 +75,7 @@ export function checkFile(info, req, fmt) {
     });
   }
 
-    // Pages: use the real count when we have one
+  // Pages: use the real count when we have one
   if (req.maxPages !== null || req.minPages !== null) {
     if (info.pageError) {
       checks.push({ id: "pages", status: "unknown", message: `Could not read page count: ${info.pageError}` });
@@ -83,6 +95,26 @@ export function checkFile(info, req, fmt) {
   // Naming: needs user-supplied values
   if (req.naming) {
     checks.push({ id: "naming", status: "unknown", message: `Naming rule ${req.naming.template} needs your details` });
+  }
+
+  // Image dimensions
+  if (req.maxDimensions || req.minDimensions) {
+    if (info.imageError) {
+      checks.push({ id: "dimensions", status: "unknown", message: `Could not read image size: ${info.imageError}` });
+    } else if (info.width == null) {
+      checks.push({ id: "dimensions", status: "unknown", message: "Dimensions not available for this file type" });
+    } else {
+      const max = req.maxDimensions, min = req.minDimensions;
+      const tooBig = max && (info.width > max.width || info.height > max.height);
+      const tooSmall = min && (info.width < min.width || info.height < min.height);
+      checks.push({
+        id: "dimensions",
+        status: tooBig || tooSmall ? "fail" : "pass",
+        message: `${info.width}×${info.height}px ${tooBig ? `exceeds the ${max.width}×${max.height} maximum`
+            : tooSmall ? `is below the ${min.width}×${min.height} minimum`
+              : "is within the limit"}`,
+      });
+    }
   }
 
   return checks;
