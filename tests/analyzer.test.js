@@ -41,3 +41,27 @@ test("page limit is reported as unknown, never pass", () => {
   const checks = checkFile(info, { ...noRules, maxPages: 10 }, { allowed: ["pdf"] });
   assert.equal(checks.find((c) => c.id === "pages").status, "unknown");
 });
+
+test("pages within limit", () => {
+  const info = { name: "a.pdf", extension: "pdf", sizeBytes: 1, mime: "", pages: 8 };
+  const checks = checkFile(info, { ...noRules, maxPages: 10 }, { allowed: ["pdf"] });
+  assert.equal(checks.find((c) => c.id === "pages").status, "pass");
+});
+
+test("pages over limit fails", () => {
+  const info = { name: "a.pdf", extension: "pdf", sizeBytes: 1, mime: "", pages: 12 };
+  const checks = checkFile(info, { ...noRules, maxPages: 10 }, { allowed: ["pdf"] });
+  assert.equal(checks.find((c) => c.id === "pages").status, "fail");
+});
+
+test("pages below minimum fails", () => {
+  const info = { name: "a.pdf", extension: "pdf", sizeBytes: 1, mime: "", pages: 3 };
+  const checks = checkFile(info, { ...noRules, minPages: 5 }, { allowed: ["pdf"] });
+  assert.equal(checks.find((c) => c.id === "pages").status, "fail");
+});
+
+test("unreadable pdf reports unknown, not pass", () => {
+  const info = { name: "a.pdf", extension: "pdf", sizeBytes: 1, mime: "", pageError: "bad file" };
+  const checks = checkFile(info, { ...noRules, maxPages: 10 }, { allowed: ["pdf"] });
+  assert.equal(checks.find((c) => c.id === "pages").status, "unknown");
+});

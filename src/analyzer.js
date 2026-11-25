@@ -1,5 +1,18 @@
 // Pure logic: file metadata + rules -> list of checks. No DOM, no chrome.* APIs.
 import { canon } from "./formats.js";
+import { PDFDocument } from "pdf-lib";
+
+// Read a PDF's page count. This DOES read file contents, locally in the browser.
+// Returns { pages } on success, or { error } if the file is unreadable or encrypted.
+export async function countPdfPages(file) {
+  try {
+    const bytes = await file.arrayBuffer();
+    const pdf = await PDFDocument.load(bytes, { ignoreEncryption: false });
+    return { pages: pdf.getPageCount() };
+  } catch (err) {
+    return { error: err.message };
+  }
+}
 
 // Bytes -> readable text. (Moved here from sidepanel.js: one shared copy.)
 export function formatBytes(bytes) {
@@ -50,9 +63,21 @@ export function checkFile(info, req, fmt) {
     });
   }
 
-  // Pages: not measurable yet, so say so instead of guessing
+    // Pages: use the real count when we have one
   if (req.maxPages !== null || req.minPages !== null) {
-    checks.push({ id: "pages", status: "unknown", message: "Page limit found, but page count is not checked yet" });
+    if (info.pageError) {
+      checks.push({ id: "pages", status: "unknown", message: `Could not read page count: ${info.pageError}` });
+    } else if (info.pages == null) {
+      checks.push({ id: "pages", status: "unknown", message: "Page count not available for this file type" });
+    } else {
+      const tooMany = req.maxPages !== null && info.pages > req.maxPages;
+      const tooFew = req.minPages !== null && info.pages < req.minPages;
+      checks.push({
+        id: "pages",
+        status: tooMany || tooFew ? "fail" : "pass",
+        message: `${info.pages} pages ${tooMany ? `exceeds the ${req.maxPages}-page limit` : tooFew ? `is below the ${req.minPages}-page minimum` : "is within the limit"}`,
+      });
+    }
   }
 
   // Naming: needs user-supplied values

@@ -1,6 +1,6 @@
 import { parseRequirements } from "./parser.js";
 import { reconcileFormats } from "./formats.js";
-import { getFileInfo, checkFile, formatBytes } from "./analyzer.js";
+import { getFileInfo, checkFile, formatBytes, countPdfPages } from "./analyzer.js";
 
 
 // ---------- Runs INSIDE the webpage ----------
@@ -115,13 +115,23 @@ const ICON = { pass: "✓", fail: "✗", unknown: "?" };
 const fileInput = document.getElementById("file-input");
 const fileInfoEl = document.getElementById("file-info");
 
-fileInput.addEventListener("change", () => {
+fileInput.addEventListener("change", async () => {
     const file = fileInput.files[0];
     if (!file) return;
     currentInfo = getFileInfo(file);
+
+    // Only PDFs get a page count for now
+    if (currentInfo.extension === "pdf") {
+        fileInfoEl.textContent = "Reading PDF…";
+        const result = await countPdfPages(file);
+        if (result.pages != null) currentInfo.pages = result.pages;
+        else currentInfo.pageError = result.error;
+    }
+
+    const pagesText = currentInfo.pages != null ? ` · ${currentInfo.pages} pages` : "";
     fileInfoEl.textContent =
-        `${currentInfo.name} · ${formatBytes(currentInfo.sizeBytes)} · ${currentInfo.mime}`;
-    if (lastFields.length) renderResults(lastFields); // re-check against scanned fields
+        `${currentInfo.name} · ${formatBytes(currentInfo.sizeBytes)}${pagesText} · ${currentInfo.mime}`;
+    if (lastFields.length) renderResults(lastFields);
 });
 
 
@@ -193,7 +203,7 @@ function renderResults(fields) {
         <p class="muted">Accepts: ${f.accept.length ? escapeHtml(f.accept.join(", ")) : "any file type"}</p>
         <p class="muted">Multiple files: ${f.multiple ? "yes" : "no"}</p>
         ${rules.map((r) => `<p class="rule">${escapeHtml(r)}</p>`).join("")}
-        ${checksHtml}
+        
         ${f.instructions.map((t) => `<p class="muted">“${escapeHtml(t)}”</p>`).join("")}
       </section>`;
         })
